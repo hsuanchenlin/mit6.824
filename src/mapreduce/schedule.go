@@ -34,27 +34,37 @@ func schedule(jobName string, mapFiles []string, nReduce int, phase jobPhase, re
 	// Your code here (Part III, Part IV).
 	//
 	var wg sync.WaitGroup
-
 	wg.Add(ntasks)
-	for i:=0;i<ntasks;i++{
-		tmp := <-registerChan
-
-		go func(ii int){
-			var dta DoTaskArgs
-			if phase == mapPhase{
-				dta = DoTaskArgs{JobName:jobName, File:mapFiles[ii], Phase:phase, TaskNumber:ii, NumOtherPhase:n_other}
-			} else {
-				dta = DoTaskArgs{JobName:jobName, File:"", Phase:phase, TaskNumber:ii, NumOtherPhase:n_other}
-			}
-			//r:=false
-			//for !r {
-			call(tmp, "Worker.DoTask",dta,nil)
-			//}
-			wg.Done()
-			registerChan <- tmp
-			//必須先done
-		}(i)
+	taskch := make(chan int, ntasks)
+	for i := 0; i < ntasks; i++ {
+		taskch <- i
 	}
+
+	go func() {
+		for {
+			task := <-taskch
+			tmp := <-registerChan
+			go func(tasklocal int) {
+				var dta DoTaskArgs
+				if phase == mapPhase {
+					dta = DoTaskArgs{JobName: jobName, File: mapFiles[tasklocal], Phase: phase, TaskNumber: tasklocal, NumOtherPhase: n_other}
+				} else {
+					dta = DoTaskArgs{JobName: jobName, File: "", Phase: phase, TaskNumber: tasklocal, NumOtherPhase: n_other}
+				}
+
+				res := call(tmp, "Worker.DoTask", dta, nil)
+				if res {
+					wg.Done()
+					registerChan <- tmp
+				} else {
+					taskch <- tasklocal
+				}
+				// done before send into channel otherwise goroutine will hanghere
+				// done first, so Wait() can exit the program
+			}(task)
+		}
+	}()
 	wg.Wait()
+
 	fmt.Printf("Schedule: %v done\n", phase)
 }
