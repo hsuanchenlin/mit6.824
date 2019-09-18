@@ -58,6 +58,7 @@ func schedule(jobName string, mapFiles []string, nReduce int, phase jobPhase, re
 					registerChan <- tmp
 				} else {
 					taskch <- tasklocal
+					registerChan <- tmp
 				}
 				// done before send into channel otherwise goroutine will hanghere
 				// done first, so Wait() can exit the program
