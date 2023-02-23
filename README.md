@@ -43,10 +43,10 @@ I think this is the most challenging part. I originally wanted to try using Mute
 
 # Lab 2
 ## A
-很難寫
+- 很難寫
 一開始寫了一版本 只能過第一個測試
 後來參考別人的解答 修改程式架構 再修一些bug就過了
-It's difficult to write. I wrote one version at first, but it only passed the first test. Later, I referred to other people's solutions, modified the program structure, and fixed some bugs, and then it passed.
+- It's difficult to write. I wrote one version at first, but it only passed the first test. Later, I referred to other people's solutions, modified the program structure, and fixed some bugs, and then it passed.
 ## B
 
 
